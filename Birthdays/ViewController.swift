@@ -17,6 +17,14 @@ class ViewController: UIViewController {
         return table
     }()
     
+    lazy var buttonAdd: UIBarButtonItem = {
+        let button = UIBarButtonItem()
+        button.image = UIImage(systemName: "plus")
+        button.target = self
+        button.action = #selector(clickButtonAdd)
+        return button
+    }()
+    
     //MARK: - Methods
 
     override func viewDidLoad() {
@@ -24,6 +32,7 @@ class ViewController: UIViewController {
         view.backgroundColor = .systemYellow
         setupElements()
         setupConstraints()
+        setupNavigationControllerSettings()
     }
     
     private func setupElements() {
@@ -42,6 +51,18 @@ class ViewController: UIViewController {
     private func setupTable() {
         table.delegate = self
         table.dataSource = self
+    }
+    
+    private func setupNavigationControllerSettings() {
+        title = "Список всех дней рождений"
+        navigationItem.rightBarButtonItem = buttonAdd
+    }
+    
+    @objc
+    private func clickButtonAdd() {
+        let modalController = AddBirthdayViewController()
+        let controller = UINavigationController(rootViewController: modalController)
+        navigationController?.present(controller, animated: true)
     }
 }
 
