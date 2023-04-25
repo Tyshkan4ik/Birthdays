@@ -13,10 +13,6 @@ protocol AddBirthdayViewControllerProtocol {
 
 class AddBirthdayViewController: UIViewController {
     
-    deinit {
-        print(#function)
-    }
-    
     private enum Constants {
         static let labelFirstNameTop: CGFloat = 44
         static let contraintsTop: CGFloat = 9
@@ -168,5 +164,4 @@ class AddBirthdayViewController: UIViewController {
             datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.constraintLeadingAndTrailing)
         ])
     }
-    
 }

@@ -18,6 +18,8 @@ class ViewController: UIViewController {
     
     lazy var table: UITableView = {
         let table = UITableView()
+        table.layer.cornerRadius = 10
+        table.alpha = 0.8
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
     }()
@@ -28,6 +30,14 @@ class ViewController: UIViewController {
         button.target = self
         button.action = #selector(clickButtonAdd)
         return button
+    }()
+    
+    lazy var backgroundImage: UIImageView = {
+       let imageView = UIImageView()
+        let image = UIImage(named: "happy1")
+        imageView.image = image
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
     
     //MARK: - Methods
@@ -44,15 +54,21 @@ class ViewController: UIViewController {
     }
     
     private func setupElements() {
+        view.addSubview(backgroundImage)
         view.addSubview(table)
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            table.topAnchor.constraint(equalTo: view.topAnchor),
-            table.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            table.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            table.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundImage.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backgroundImage.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            table.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            table.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            table.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            table.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
@@ -63,6 +79,7 @@ class ViewController: UIViewController {
     
     private func setupNavigationControllerSettings() {
         title = "Список всех дней рождений"
+        
         navigationItem.rightBarButtonItem = buttonAdd
     }
     
@@ -103,7 +120,7 @@ extension ViewController: UITableViewDataSource {
         } else {
             configuration.secondaryText = ""
         }
-        
+        cell.selectionStyle = .none
         cell.contentConfiguration = configuration
         return cell
     }
@@ -115,7 +132,7 @@ extension ViewController: UITableViewDelegate {
     
 }
 
-//MARK: - extension -
+//MARK: - extension - AddBirthdayViewControllerProtocol
 
 extension ViewController: AddBirthdayViewControllerProtocol {
     
