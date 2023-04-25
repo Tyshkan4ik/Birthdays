@@ -96,6 +96,20 @@ class ViewController: UIViewController {
         modalController.delegate = self
         navigationController?.present(controller, animated: true)
     }
+    
+    /// Удаляем день рождение из CoreData и сохраняем изменения
+    /// - Parameter birthday: удаляемое день рождение
+    private func deleteFromCoreData(birthday: Birthday) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        context.delete(birthday)
+        
+        do {
+            try context.save()
+        } catch let error {
+            print("Не удалось сохранить изменение из-за ошибки \(error).")
+        }
+    }
 }
 
 //MARK: - extension - UITableViewDataSource
@@ -129,7 +143,20 @@ extension ViewController: UITableViewDataSource {
 //MARK: - extension - UITableViewDelegate
 
 extension ViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let actionDelete = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, _ in
+            if let birthday = self?.birthdays[indexPath.row] {
+                self?.deleteFromCoreData(birthday: birthday)
+                self?.birthdays.remove(at: indexPath.row)
+                tableView.reloadData()
+            }
+        }
+        actionDelete.image = UIImage(systemName: "trash")
+        let actions = UISwipeActionsConfiguration(actions: [actionDelete])
+        
+        
+        return actions
+    }
 }
 
 //MARK: - extension - AddBirthdayViewControllerProtocol
