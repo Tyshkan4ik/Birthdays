@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import CoreData
+import UserNotifications
 
 protocol AddBirthdayViewControllerProtocol {
     func getBirtdays()
@@ -76,7 +78,7 @@ class AddBirthdayViewController: UIViewController {
     }()
     
     lazy var datePicker: UIDatePicker = {
-       let picker = UIDatePicker()
+        let picker = UIDatePicker()
         picker.preferredDatePickerStyle = .wheels
         picker.datePickerMode = .date
         picker.maximumDate = Date()
@@ -118,11 +120,43 @@ class AddBirthdayViewController: UIViewController {
         
         do {
             try context.save()
+            
+            addNotification(
+                firstName: firstName,
+                lastName: lastName,
+                date: birthdatePicker,
+                birthdayID: newBirthday.birthdayID
+            )
+            
         } catch let error {
             print("Не удалось сохранить новое день рождеие из-за ошибки - \(error)")
         }
         delegate?.getBirtdays()
         dismiss(animated: true)
+    }
+    
+    /// Добавляем уведомление о дне рождении
+    /// - Parameters:
+    ///   - firstName: Имя
+    ///   - lastName: Фамилия
+    ///   - date: Дата дня рождения
+    ///   - birthdayID: ID дня рождения
+    private func addNotification(firstName: String, lastName: String, date: Date, birthdayID: String?) {
+        let message = "Сегодня \(firstName) \(lastName) празднует свой день рождения!"
+        let content = UNMutableNotificationContent()
+        content.body = message
+        content.sound = UNNotificationSound.default
+        
+        var dateComponents = Calendar.current.dateComponents([.month, .day], from: date)
+        dateComponents.hour = 15
+        dateComponents.minute = 39
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        
+        if let identifier = birthdayID {
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+            let center = UNUserNotificationCenter.current()
+            center.add(request, withCompletionHandler: nil)
+        }
     }
     
     @objc

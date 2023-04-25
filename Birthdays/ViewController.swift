@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import UserNotifications
 
 class ViewController: UIViewController {
     
@@ -33,7 +34,7 @@ class ViewController: UIViewController {
     }()
     
     lazy var backgroundImage: UIImageView = {
-       let imageView = UIImageView()
+        let imageView = UIImageView()
         let image = UIImage(named: "happy1")
         imageView.image = image
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -110,6 +111,15 @@ class ViewController: UIViewController {
             print("Не удалось сохранить изменение из-за ошибки \(error).")
         }
     }
+    
+    /// Удаляем день рождение из уведомлений
+    /// - Parameter birthday: удаляемое день рождение
+    private func deleteNotification(birthday: Birthday) {
+        if let identifier = birthday.birthdayID {
+            let center = UNUserNotificationCenter.current()
+            center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        }
+    }
 }
 
 //MARK: - extension - UITableViewDataSource
@@ -146,6 +156,7 @@ extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let actionDelete = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, _ in
             if let birthday = self?.birthdays[indexPath.row] {
+                self?.deleteNotification(birthday: birthday)
                 self?.deleteFromCoreData(birthday: birthday)
                 self?.birthdays.remove(at: indexPath.row)
                 tableView.reloadData()
