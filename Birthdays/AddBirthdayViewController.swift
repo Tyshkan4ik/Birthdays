@@ -9,6 +9,13 @@ import UIKit
 
 class AddBirthdayViewController: UIViewController {
     
+    private enum Constants {
+        static let labelFirstNameTop: CGFloat = 44
+        static let contraintsTop: CGFloat = 9
+        static let constraintLeadingAndTrailing: CGFloat = 20
+        static let labelBirthDateTop: CGFloat = 25
+    }
+    
     //MARK: - Property
     
     lazy var buttonSave: UIBarButtonItem = {
@@ -48,14 +55,14 @@ class AddBirthdayViewController: UIViewController {
         return label
     }()
     
-    lazy var TextFieldFirstName: UITextField = {
+    lazy var textFieldFirstName: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
-    lazy var TextFieldLastName: UITextField = {
+    lazy var textFieldLastName: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -90,7 +97,25 @@ class AddBirthdayViewController: UIViewController {
     
     @objc
     private func clickButtonSave() {
+        let firstName = textFieldFirstName.text ?? ""
+        let lastName = textFieldLastName.text ?? ""
+        let birthdatePicker = datePicker.date
         
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let newBirthday = Birthday(context: context)
+        newBirthday.firstName = firstName
+        newBirthday.lastName = lastName
+        newBirthday.birthdate = birthdatePicker
+        newBirthday.birthdayID = UUID().uuidString
+        
+        do {
+            try context.save()
+        } catch let error {
+            print("Не удалось сохранить новое день рождеие из-за ошибки - \(error)")
+        }
+        dismiss(animated: true)
     }
     
     @objc
@@ -102,34 +127,34 @@ class AddBirthdayViewController: UIViewController {
         view.addSubview(labelFirstName)
         view.addSubview(labelLastName)
         view.addSubview(labelBirthDate)
-        view.addSubview(TextFieldFirstName)
-        view.addSubview(TextFieldLastName)
+        view.addSubview(textFieldFirstName)
+        view.addSubview(textFieldLastName)
         view.addSubview(datePicker)
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
-            labelFirstName.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
-            labelFirstName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            labelFirstName.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.labelFirstNameTop),
+            labelFirstName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.constraintLeadingAndTrailing),
             
-            TextFieldFirstName.topAnchor.constraint(equalTo: labelFirstName.bottomAnchor, constant: 9),
-            TextFieldFirstName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            TextFieldFirstName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            textFieldFirstName.topAnchor.constraint(equalTo: labelFirstName.bottomAnchor, constant: Constants.contraintsTop),
+            textFieldFirstName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.constraintLeadingAndTrailing),
+            textFieldFirstName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.constraintLeadingAndTrailing),
             
-            labelLastName.topAnchor.constraint(equalTo: TextFieldFirstName.bottomAnchor, constant: 6),
-            labelLastName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            labelLastName.topAnchor.constraint(equalTo: textFieldFirstName.bottomAnchor, constant: Constants.contraintsTop),
+            labelLastName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.constraintLeadingAndTrailing),
             
-            TextFieldLastName.topAnchor.constraint(equalTo: labelLastName.bottomAnchor, constant: 9),
-            TextFieldLastName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            TextFieldLastName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            textFieldLastName.topAnchor.constraint(equalTo: labelLastName.bottomAnchor, constant: Constants.contraintsTop),
+            textFieldLastName.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.constraintLeadingAndTrailing),
+            textFieldLastName.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.constraintLeadingAndTrailing),
             
-            labelBirthDate.topAnchor.constraint(equalTo: TextFieldLastName.bottomAnchor, constant: 25),
-            labelBirthDate.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            labelBirthDate.topAnchor.constraint(equalTo: textFieldLastName.bottomAnchor, constant: Constants.labelBirthDateTop),
+            labelBirthDate.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.constraintLeadingAndTrailing),
             
-            datePicker.topAnchor.constraint(equalTo: labelBirthDate.bottomAnchor, constant: 9),
-            datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
+            datePicker.topAnchor.constraint(equalTo: labelBirthDate.bottomAnchor, constant: Constants.contraintsTop),
+            datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.constraintLeadingAndTrailing),
+            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.constraintLeadingAndTrailing)
         ])
     }
     

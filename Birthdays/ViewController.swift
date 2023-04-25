@@ -6,10 +6,15 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController {
     
     //MARK: - Properties
+    
+    var birthdays = [Birthday]()
+    
+    let dateFormatter = DateFormatter()
     
     lazy var table: UITableView = {
        let table = UITableView()
@@ -33,6 +38,9 @@ class ViewController: UIViewController {
         setupElements()
         setupConstraints()
         setupNavigationControllerSettings()
+        setupTable()
+        dateFormatterSettings()
+        getBirtdays()
     }
     
     private func setupElements() {
@@ -58,11 +66,33 @@ class ViewController: UIViewController {
         navigationItem.rightBarButtonItem = buttonAdd
     }
     
+    private func dateFormatterSettings() {
+        dateFormatter.dateStyle = .full
+        dateFormatter.timeStyle = .none
+    }
+    
     @objc
     private func clickButtonAdd() {
         let modalController = AddBirthdayViewController()
         let controller = UINavigationController(rootViewController: modalController)
         navigationController?.present(controller, animated: true)
+    }
+    
+    private func getBirtdays() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        let fetchRequest = Birthday.fetchRequest() as NSFetchRequest<Birthday>
+        
+        let sortDescriptor1 = NSSortDescriptor(key: "lastName", ascending: true)
+        let sortDescriptor2 = NSSortDescriptor(key: "firstName", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor1, sortDescriptor2]
+        
+        do {
+            birthdays = try context.fetch(fetchRequest)
+        } catch let error {
+            print("Не удалось загрузить дни рождения из-за ошибки - \(error)")
+        }
+        table.reloadData()
     }
 }
 
@@ -70,17 +100,26 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        20
+        return birthdays.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell: UITableViewCell
-        if let reuseCell = tableView.dequeueReusableCell(withIdentifier: "cell") {
-            cell = reuseCell
-        } else {
-            cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
-        }
 
+            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+            let birthday = birthdays[indexPath.row]
+            var configuration = cell.defaultContentConfiguration()
+            
+            let firstName = birthday.firstName ?? ""
+            let lastName = birthday.lastName ?? ""
+            
+            configuration.text = firstName + " " + lastName
+            if let date = birthday.birthdate {
+                configuration.secondaryText = dateFormatter.string(from: date)
+            } else {
+                configuration.secondaryText = ""
+            }
+            
+        cell.contentConfiguration = configuration
         return cell
     }
 }
