@@ -7,7 +7,15 @@
 
 import UIKit
 
+protocol AddBirthdayViewControllerProtocol {
+    func getBirtdays()
+}
+
 class AddBirthdayViewController: UIViewController {
+    
+    deinit {
+        print(#function)
+    }
     
     private enum Constants {
         static let labelFirstNameTop: CGFloat = 44
@@ -17,6 +25,8 @@ class AddBirthdayViewController: UIViewController {
     }
     
     //MARK: - Property
+    
+    var delegate: AddBirthdayViewControllerProtocol?
     
     lazy var buttonSave: UIBarButtonItem = {
         let button = UIBarButtonItem()
@@ -115,6 +125,7 @@ class AddBirthdayViewController: UIViewController {
         } catch let error {
             print("Не удалось сохранить новое день рождеие из-за ошибки - \(error)")
         }
+        delegate?.getBirtdays()
         dismiss(animated: true)
     }
     

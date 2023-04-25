@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     let dateFormatter = DateFormatter()
     
     lazy var table: UITableView = {
-       let table = UITableView()
+        let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
         return table
     }()
@@ -31,7 +31,7 @@ class ViewController: UIViewController {
     }()
     
     //MARK: - Methods
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemYellow
@@ -66,6 +66,7 @@ class ViewController: UIViewController {
         navigationItem.rightBarButtonItem = buttonAdd
     }
     
+    /// Настройка формата даты
     private func dateFormatterSettings() {
         dateFormatter.dateStyle = .full
         dateFormatter.timeStyle = .none
@@ -75,10 +76,51 @@ class ViewController: UIViewController {
     private func clickButtonAdd() {
         let modalController = AddBirthdayViewController()
         let controller = UINavigationController(rootViewController: modalController)
+        modalController.delegate = self
         navigationController?.present(controller, animated: true)
     }
+}
+
+//MARK: - extension - UITableViewDataSource
+
+extension ViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return birthdays.count
+    }
     
-    private func getBirtdays() {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+        let birthday = birthdays[indexPath.row]
+        var configuration = cell.defaultContentConfiguration()
+        
+        let firstName = birthday.firstName ?? ""
+        let lastName = birthday.lastName ?? ""
+        
+        configuration.text = firstName + " " + lastName
+        if let date = birthday.birthdate {
+            configuration.secondaryText = dateFormatter.string(from: date)
+        } else {
+            configuration.secondaryText = ""
+        }
+        
+        cell.contentConfiguration = configuration
+        return cell
+    }
+}
+
+//MARK: - extension - UITableViewDelegate
+
+extension ViewController: UITableViewDelegate {
+    
+}
+
+//MARK: - extension -
+
+extension ViewController: AddBirthdayViewControllerProtocol {
+    
+    /// Получение данных с CoreData
+    func getBirtdays() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
         let fetchRequest = Birthday.fetchRequest() as NSFetchRequest<Birthday>
@@ -94,38 +136,4 @@ class ViewController: UIViewController {
         }
         table.reloadData()
     }
-}
-
-//MARK: - extension - UITableViewDataSource
-
-extension ViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return birthdays.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-            let birthday = birthdays[indexPath.row]
-            var configuration = cell.defaultContentConfiguration()
-            
-            let firstName = birthday.firstName ?? ""
-            let lastName = birthday.lastName ?? ""
-            
-            configuration.text = firstName + " " + lastName
-            if let date = birthday.birthdate {
-                configuration.secondaryText = dateFormatter.string(from: date)
-            } else {
-                configuration.secondaryText = ""
-            }
-            
-        cell.contentConfiguration = configuration
-        return cell
-    }
-}
-
-//MARK: - extension - UITableViewDelegate
-
-extension ViewController: UITableViewDelegate {
-    
 }
